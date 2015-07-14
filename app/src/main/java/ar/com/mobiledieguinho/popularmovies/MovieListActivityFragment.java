@@ -30,6 +30,7 @@ import ar.com.mobiledieguinho.popularmovies.parser.MovieParser;
  */
 public class MovieListActivityFragment extends Fragment {
     private final static String TAG = "MovieListActivity";
+    private boolean recreated = false;
     private MoviesAdapter adapter;
     private GridView moviesListView;
     private ArrayList<Movie> movies = new ArrayList<Movie>();
@@ -41,15 +42,21 @@ public class MovieListActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         if(savedInstanceState != null && savedInstanceState.containsKey("movies")) {
             movies = savedInstanceState.getParcelableArrayList("movies");
+        }else{
+            fetchMovieData();
         }
+        this.recreated = true;
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
+        if(!this.recreated) {
+            this.movies.clear();
+            fetchMovieData();
+        }
+        this.recreated = false;
         super.onResume();
-        this.movies.clear();
-        fetchMovieData();
     }
 
     @Override
