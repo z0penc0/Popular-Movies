@@ -30,10 +30,10 @@ import ar.com.mobiledieguinho.popularmovies.parser.MovieParser;
  */
 public class MovieListActivityFragment extends Fragment {
     private final static String TAG = "MovieListActivity";
-    private boolean recreated = false;
     private MoviesAdapter adapter;
     private GridView moviesListView;
     private ArrayList<Movie> movies = new ArrayList<Movie>();
+    private String lastSortOrder;
 
     public MovieListActivityFragment() {
     }
@@ -45,17 +45,20 @@ public class MovieListActivityFragment extends Fragment {
         }else{
             fetchMovieData();
         }
-        this.recreated = true;
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
-        if(!this.recreated) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortBy = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_value));
+
+        // Fetch movies only if sort criteria has changed
+        if(lastSortOrder!= null && !sortBy.equals(lastSortOrder)){
             this.movies.clear();
             fetchMovieData();
         }
-        this.recreated = false;
+        lastSortOrder = sortBy;
         super.onResume();
     }
 
