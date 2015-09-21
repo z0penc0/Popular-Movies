@@ -23,6 +23,7 @@ import java.util.List;
 import ar.com.mobiledieguinho.popularmovies.adapter.MoviesAdapter;
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
 import ar.com.mobiledieguinho.popularmovies.parser.MovieParser;
+import ar.com.mobiledieguinho.popularmovies.ws.WebService;
 
 
 /**
@@ -106,23 +107,11 @@ public class MovieListActivityFragment extends Fragment {
         AsyncTask<Void, Void, List<Movie>> task = new AsyncTask<Void, Void, List<Movie>>() {
             @Override
             protected List<Movie> doInBackground(Void... params) {
-                List<Movie> movies = new ArrayList<Movie>();
-                List<Pair<String, String>> parameters = new ArrayList<Pair<String, String>>();
-
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String sortBy = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_value));
 
-                WebProxy proxy = new WebProxy();
-                parameters.add(new Pair(WebProxy.PARAM_KEY, Constants.KEY));
-                parameters.add(new Pair(WebProxy.PARAM_SORT, sortBy));
-
-                String jsonData = proxy.fetchJSONData(Constants.URL_BASE_MOVIE_DATABASE, parameters);
-                Log.d(TAG, "JSON: " + jsonData);
-                if(jsonData != null && !jsonData.equals("")){
-                    movies = MovieParser.parseJSON(jsonData);
-                }
-
-                return movies;
+                WebService webService = new WebService();
+                return webService.getMovies(sortBy);
             }
 
             @Override
