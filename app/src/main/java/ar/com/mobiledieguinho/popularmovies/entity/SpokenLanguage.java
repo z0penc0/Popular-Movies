@@ -9,24 +9,24 @@ import com.google.gson.annotations.SerializedName;
  * Created by Dieguinho on 19/07/2015.
  */
 public class SpokenLanguage implements Parcelable {
-    @SerializedName("iso_639_1") private long iso_639_1;
+    @SerializedName("iso_639_1") private String iso_639_1;
     @SerializedName("name") private String name;
 
-    private SpokenLanguage(long iso_639_1, String name) {
+    private SpokenLanguage(String iso_639_1, String name) {
         this.iso_639_1 = iso_639_1;
         this.name = name;
     }
 
     private SpokenLanguage(Parcel parcel){
-        this.iso_639_1 = parcel.readLong();
+        this.iso_639_1 = parcel.readString();
         this.name = parcel.readString();
     }
 
-    public long getIso_639_1() {
+    public String getIso_639_1() {
         return iso_639_1;
     }
 
-    public void setIso_639_1(long iso_639_1) {
+    public void setIso_639_1(String iso_639_1) {
         this.iso_639_1 = iso_639_1;
     }
 
@@ -45,7 +45,7 @@ public class SpokenLanguage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.iso_639_1);
+        dest.writeString(this.iso_639_1);
         dest.writeString(this.name);
     }
 

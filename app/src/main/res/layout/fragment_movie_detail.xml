@@ -44,22 +44,12 @@
                       android:textStyle="italic|bold"
                 />
 
-            <TextView android:id="@+id/textView_genres"
-                android:textSize="14sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:layout_alignLeft="@id/textView_title"
-                android:layout_below="@id/textView_title"/>
-
             <TextView android:id="@+id/textView_label_release_date"
                       android:textSize="14sp"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_alignLeft="@id/textView_title"
-                      android:layout_below="@id/textView_genres"
+                      android:layout_below="@id/textView_title"
                       android:text="@string/textView_label_release_date"
                       android:textStyle="italic"/>
 

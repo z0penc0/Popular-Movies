@@ -26,7 +26,7 @@ public class Movie implements Parcelable {
     @SerializedName("budget") private long budget;
 
     @SerializedName("homepage") private String homepage;
-    @SerializedName("imdb_id") private long idImdb;
+    @SerializedName("imdb_id") private String idImdb;
     @SerializedName("popularity") private double popularity;
 
     @SerializedName("production_companies") private List<ProductionCompany> productionCompanies = new ArrayList<ProductionCompany>();
@@ -42,10 +42,12 @@ public class Movie implements Parcelable {
     @SerializedName("vote_average") private double userRating;
     @SerializedName("vote_count") private long voteCount;
 
+    private boolean favourite;
+
     public Movie() {
     }
 
-    public Movie(long id, String title, String originalTitle, String backdropPath, String posterPath, String synopsis, String releaseDate, String originalLanguage, boolean adult, long budget, String homepage, long idImdb, double popularity, List<ProductionCompany> productionCompanies, List<ProductionCountry> productionCountries, long revenue, int runtime, List<SpokenLanguage> spokenLanguages, String status, String tagLine, boolean video, double userRating, long voteCount) {
+    public Movie(long id, String title, String originalTitle, String backdropPath, String posterPath, String synopsis, String releaseDate, String originalLanguage, boolean adult, long budget, String homepage, String idImdb, double popularity, List<ProductionCompany> productionCompanies, List<ProductionCountry> productionCountries, long revenue, int runtime, List<SpokenLanguage> spokenLanguages, String status, String tagLine, boolean video, double userRating, long voteCount, boolean favourite) {
         this.id = id;
         this.title = title;
         this.originalTitle = originalTitle;
@@ -69,6 +71,7 @@ public class Movie implements Parcelable {
         this.video = video;
         this.userRating = userRating;
         this.voteCount = voteCount;
+        this.favourite = favourite;
     }
 
     private Movie(Parcel parcel){
@@ -84,7 +87,7 @@ public class Movie implements Parcelable {
         this.adult = parcel.readByte() != 0;
         this.budget = parcel.readLong();
         this.homepage = parcel.readString();
-        this.idImdb = parcel.readLong();
+        this.idImdb = parcel.readString();
         this.popularity = parcel.readDouble();
         parcel.readTypedList(productionCompanies, ProductionCompany.CREATOR);
         parcel.readTypedList(productionCountries, ProductionCountry.CREATOR);
@@ -95,6 +98,7 @@ public class Movie implements Parcelable {
         this.tagLine = parcel.readString();
         this.video = parcel.readByte() != 0;
         this.voteCount = parcel.readLong();
+        this.favourite = parcel.readByte() != 0;
     }
 
     public long getId() {
@@ -197,11 +201,11 @@ public class Movie implements Parcelable {
         this.homepage = homepage;
     }
 
-    public long getIdImdb() {
+    public String getIdImdb() {
         return idImdb;
     }
 
-    public void setIdImdb(long idImdb) {
+    public void setIdImdb(String idImdb) {
         this.idImdb = idImdb;
     }
 
@@ -285,6 +289,14 @@ public class Movie implements Parcelable {
         this.voteCount = voteCount;
     }
 
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -304,7 +316,7 @@ public class Movie implements Parcelable {
         dest.writeByte((byte) (this.adult ? 1 : 0));
         dest.writeLong(this.budget);
         dest.writeString(this.homepage);
-        dest.writeLong(this.idImdb);
+        dest.writeString(this.idImdb);
         dest.writeDouble(this.popularity);
         dest.writeTypedList(this.productionCompanies);
         dest.writeTypedList(this.productionCountries);
@@ -315,6 +327,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.tagLine);
         dest.writeByte((byte) (this.video ? 1 : 0));
         dest.writeLong(this.voteCount);
+        dest.writeByte((byte) (this.favourite ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

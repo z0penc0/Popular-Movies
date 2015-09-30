@@ -4,7 +4,10 @@ import java.util.List;
 
 import ar.com.mobiledieguinho.popularmovies.Constants;
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
+import ar.com.mobiledieguinho.popularmovies.entity.Review;
+import ar.com.mobiledieguinho.popularmovies.entity.Trailer;
 import ar.com.mobiledieguinho.popularmovies.entity.ResponsePage;
+import retrofit.Callback;
 import retrofit.RestAdapter;
 
 /**
@@ -22,7 +25,7 @@ public class WebService {
         return page.getResults();
     }
 
-    public Movie getMovie(String id){
+    public Movie getMovie(long id, Callback<Movie> callback){
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint("http://api.themoviedb.org/3")
                 .build();
@@ -30,5 +33,25 @@ public class WebService {
         InterfaceTheMovieDataBase service = restAdapter.create(InterfaceTheMovieDataBase.class);
         Movie movie = service.getMovie(id, Constants.KEY);
         return movie;
+    }
+
+    public List<Trailer> getMovieTrailers(long id){
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://api.themoviedb.org/3")
+                .build();
+
+        InterfaceTheMovieDataBase service = restAdapter.create(InterfaceTheMovieDataBase.class);
+        List<Trailer> trailers = service.getMovieTrailers(id, Constants.KEY);
+        return trailers;
+    }
+
+    public List<Review> getMovieReviews(long id){
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://api.themoviedb.org/3")
+                .build();
+
+        InterfaceTheMovieDataBase service = restAdapter.create(InterfaceTheMovieDataBase.class);
+        List<Review> reviews = service.getMovieReviews(id, Constants.KEY);
+        return reviews;
     }
 }
