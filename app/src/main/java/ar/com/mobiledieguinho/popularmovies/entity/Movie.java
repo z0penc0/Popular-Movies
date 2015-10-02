@@ -1,5 +1,7 @@
 package ar.com.mobiledieguinho.popularmovies.entity;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -7,6 +9,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ar.com.mobiledieguinho.popularmovies.MovieListActivityFragment;
+import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 
 /**
  * Created by Dieguinho on 10/07/2015.
@@ -72,6 +77,33 @@ public class Movie implements Parcelable {
         this.userRating = userRating;
         this.voteCount = voteCount;
         this.favourite = favourite;
+    }
+
+    public Movie(Cursor cursor) {
+        this.id = cursor.getInt(MovieListActivityFragment.COLUMN_ID);
+        this.title = cursor.getString(MovieListActivityFragment.COLUMN_TITLE);
+        this.originalTitle = cursor.getString(MovieListActivityFragment.COLUMN_ORIGINAL_TITLE);
+        this.backdropPath = cursor.getString(MovieListActivityFragment.COLUMN_BACKDROP_PATH);
+        this.posterPath = cursor.getString(MovieListActivityFragment.COLUMN_POSTER_PATH);
+        this.synopsis = cursor.getString(MovieListActivityFragment.COLUMN_SYNOPSIS);
+        this.releaseDate = cursor.getString(MovieListActivityFragment.COLUMN_RELEASE_DATE);
+        this.originalLanguage = cursor.getString(MovieListActivityFragment.COLUMN_ORIGINAL_LANGUAGE);
+        this.adult = cursor.getInt(MovieListActivityFragment.COLUMN_ADULT) != 0;
+        this.budget = cursor.getLong(MovieListActivityFragment.COLUMN_BUDGET);
+        this.homepage = cursor.getString(MovieListActivityFragment.COLUMN_HOMEPAGE);
+        this.idImdb = cursor.getString(MovieListActivityFragment.COLUMN_ID_IMDB);
+        this.popularity = cursor.getDouble(MovieListActivityFragment.COLUMN_POPULARITY);
+//        this.productionCompanies = cursor.getString(MovieListActivityFragment.COLUMN_ID_PRODUCTION_COMPANY);
+//        this.productionCountries = cursor.getString(MovieListActivityFragment.COLUMN_ID_PRODUCTION_COUNTRY);
+        this.revenue = cursor.getLong(MovieListActivityFragment.COLUMN_REVENUE);
+        this.runtime = cursor.getInt(MovieListActivityFragment.COLUMN_RUNTIME);
+//        this.spokenLanguages = cursor.getString(MovieListActivityFragment.COLUMN_ID_SPOKEN_LANGUAGE);
+        this.status = cursor.getString(MovieListActivityFragment.COLUMN_STATUS);
+        this.tagLine = cursor.getString(MovieListActivityFragment.COLUMN_TAGLINE);
+        this.video = cursor.getInt(MovieListActivityFragment.COLUMN_VIDEO) != 0;
+        this.userRating = cursor.getDouble(MovieListActivityFragment.COLUMN_VOTE_AVERAGE);
+        this.voteCount = cursor.getLong(MovieListActivityFragment.COLUMN_VOTE_COUNT);
+        this.favourite = cursor.getInt(MovieListActivityFragment.COLUMN_FAVOURITE) != 0;
     }
 
     private Movie(Parcel parcel){
@@ -295,6 +327,37 @@ public class Movie implements Parcelable {
 
     public void setFavourite(boolean favourite) {
         this.favourite = favourite;
+    }
+
+    public ContentValues getAsContentValues(){
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.MovieEntry._ID, getId());
+        values.put(MovieContract.MovieEntry.COLUMN_TITLE, getTitle());
+        values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, getOriginalTitle());
+        values.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, getBackdropPath());
+        values.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, getPosterPath());
+        values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, getSynopsis());
+        values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, getReleaseDate());
+        values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE, getOriginalLanguage());
+        values.put(MovieContract.MovieEntry.COLUMN_ADULT, isAdult());
+        values.put(MovieContract.MovieEntry.COLUMN_BUDGET, getBudget());
+        values.put(MovieContract.MovieEntry.COLUMN_HOMEPAGE, getHomepage());
+        values.put(MovieContract.MovieEntry.COLUMN_ID_IMDB, getIdImdb());
+        values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, getPopularity());
+//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COMPANY, );
+//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COUNTRY, );
+        values.put(MovieContract.MovieEntry.COLUMN_REVENUE, getRevenue());
+        values.put(MovieContract.MovieEntry.COLUMN_RUNTIME, getRuntime());
+//        values.put(MovieContract.MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE, movie.get);
+        values.put(MovieContract.MovieEntry.COLUMN_STATUS, getStatus());
+        values.put(MovieContract.MovieEntry.COLUMN_TAGLINE, getTagLine());
+        values.put(MovieContract.MovieEntry.COLUMN_VIDEO, isVideo());
+        values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, getUserRating());
+        values.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, getVoteCount());
+        values.put(MovieContract.MovieEntry.COLUMN_FAVOURITE, isFavourite());
+//        values.put(MovieContract.MovieEntry.COLUMN_ID_TRAILER, movie.get);
+//        values.put(MovieContract.MovieEntry.COLUMN_ID_REVIEW, );
+        return values;
     }
 
     @Override

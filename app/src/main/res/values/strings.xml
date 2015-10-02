@@ -17,4 +17,12 @@
     <string name="textView_label_release_date">Release Date:&#160;</string>
     <string name="textView_label_user_rating">Rating:&#160;</string>
     <string name="textView_favorite">MARK AS FAVORITE</string>
+    <string name="textView_favorited">IN YOUR FAVORITES</string>
+
+    <!-- Menu -->
+    <string name="action_user_rating">Sort by User Rating</string>
+    <string name="action_popularity">Sort by Popularity</string>
+    <string name="action_favourites_popularity">Favorites By Popularity</string>
+    <string name="action_favourites_user_rating">Favorites By User Rating</string>
+
 </resources>

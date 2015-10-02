@@ -2,6 +2,7 @@ package ar.com.mobiledieguinho.popularmovies;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -171,35 +172,11 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         if (!data.moveToFirst() || data.getCount() > 1) {
             return;
         }
-        Log.d(TAG, "TRAJO LA PELICULA!!");
 
-//        private ImageView imageViewBackdrop;
-//        private ImageView imageViewPoster;
-//        private TextView textViewTitle;
-//        private TextView textViewGenres;
-//        private TextView textViewReleaseDate;
-//        private TextView textViewSynopsis;
-//        private TextView textViewUserRating;
-//        private TextView textViewFavourite;
-
-//        int weatherConditionId = data.getInt(MovieListActivityFragment.COL);
-//        boolean isMetric = Utility.isMetric(getActivity());
-//        long date = data.getLong(COL_WEATHER_DATE);
-//        String dateString = Utility.getFormattedMonthDay(getActivity(), date);
-//        String friendlyDateName = Utility.getDayName(getActivity(), date);
-//        String weatherDescription = data.getString(COL_WEATHER_DESC);
-//        double high = data.getDouble(COL_WEATHER_MAX_TEMP);
-//        double low = data.getDouble(COL_WEATHER_MIN_TEMP);
-//        double humidity = data.getDouble(COL_WEATHER_HUMIDITY);
-//        double wind = data.getDouble(COL_WEATHER_WIND_SPEED);
-//        double pressure = data.getDouble(COL_WEATHER_PRESSURE);
-//        double degrees = data.getDouble(COL_WEATHER_DEGREES);
-
-//        data.moveToFirst();
         imageViewBackdrop.setAdjustViewBounds(true);
         String urlBackdrop = Constants.URL_BASE_MOVIE_DATABASE_IMAGE + Constants.IMAGE_SIZE_342 + data.getString(MovieListActivityFragment.COLUMN_BACKDROP_PATH);
         Picasso.with(getActivity()).load(urlBackdrop).into(imageViewBackdrop);
@@ -213,10 +190,30 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
         }
 
         textViewTitle.setText(data.getString(MovieListActivityFragment.COLUMN_TITLE));
-//        textViewGenres.setText("LALA");
         textViewReleaseDate.setText(data.getString(MovieListActivityFragment.COLUMN_RELEASE_DATE));
         textViewSynopsis.setText(data.getString(MovieListActivityFragment.COLUMN_SYNOPSIS));
         textViewUserRating.setText(String.valueOf(data.getDouble(MovieListActivityFragment.COLUMN_VOTE_AVERAGE)));
+
+        if(data.getInt(MovieListActivityFragment.COLUMN_FAVOURITE) != 0){
+            textViewFavourite.setText(R.string.textView_favorited);
+            textViewFavourite.setBackgroundResource(R.color.favourited);
+        }else{
+            textViewFavourite.setText(R.string.textView_favorite);
+            textViewFavourite.setBackgroundResource(R.color.not_favourited);
+        }
+        textViewFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                int movieId = data.getInt(MovieListActivityFragment.COLUMN_ID);
+                boolean favourite = !(data.getInt(MovieListActivityFragment.COLUMN_FAVOURITE) != 0);
+                values.put(MovieContract.MovieEntry.COLUMN_FAVOURITE, favourite);
+
+                ContentResolver contentResolver = getActivity().getContentResolver();
+                int updates = contentResolver.update(MovieContract.MovieEntry.CONTENT_URI, values, "_id = ?", new String[]{String.valueOf(movieId)});
+                Log.d(TAG, "Updated " + updates + " records");
+            }
+        });
     }
 
     @Override

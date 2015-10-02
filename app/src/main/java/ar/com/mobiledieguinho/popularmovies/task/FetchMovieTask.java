@@ -57,33 +57,7 @@ public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
             return cursor.getLong(columnIndex);
         }
         ContentValues values = new ContentValues();
-        values.put(MovieContract.MovieEntry._ID, movie.getId());
-        values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
-        values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, movie.getOriginalTitle());
-        values.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, movie.getBackdropPath());
-        values.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
-        values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, movie.getSynopsis());
-        values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
-        values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE, movie.getOriginalLanguage());
-        values.put(MovieContract.MovieEntry.COLUMN_ADULT, movie.isAdult());
-        values.put(MovieContract.MovieEntry.COLUMN_BUDGET, movie.getBudget());
-        values.put(MovieContract.MovieEntry.COLUMN_HOMEPAGE, movie.getHomepage());
-        values.put(MovieContract.MovieEntry.COLUMN_ID_IMDB, movie.getIdImdb());
-        values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, movie.getPopularity());
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COMPANY, );
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COUNTRY, );
-        values.put(MovieContract.MovieEntry.COLUMN_REVENUE, movie.getRevenue());
-        values.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movie.getRuntime());
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE, movie.get);
-        values.put(MovieContract.MovieEntry.COLUMN_STATUS, movie.getStatus());
-        values.put(MovieContract.MovieEntry.COLUMN_TAGLINE, movie.getTagLine());
-        values.put(MovieContract.MovieEntry.COLUMN_VIDEO, movie.isVideo());
-        values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movie.getUserRating());
-        values.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
-        values.put(MovieContract.MovieEntry.COLUMN_FAVOURITE, false);
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_TRAILER, movie.get);
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_REVIEW, );
-
+        values = movie.getAsContentValues();
         return ContentUris.parseId(contentResolver.insert(MovieContract.MovieEntry.CONTENT_URI, values));
     }
 
