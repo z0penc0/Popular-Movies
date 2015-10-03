@@ -118,7 +118,6 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
         boolean favouriteSelected = sharedPref.getBoolean(getActivity().getString(R.string.pref_favorite_key), false);
         setFavouriteSelection(favouriteSelected);
 
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         FetchMovieTask movieTask = new FetchMovieTask(getActivity());
         movieTask.execute();
@@ -165,6 +164,12 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
             }
         });
         return fragmentRoot;
+    }
+
+    @Override
+    public void onResume() {
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
     }
 
     @Override

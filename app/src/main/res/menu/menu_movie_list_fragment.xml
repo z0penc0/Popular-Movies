@@ -4,11 +4,11 @@
       tools:context=".MovieListActivity">
       <item android:id="@+id/action_popularity"
           android:title="@string/action_popularity"
-          android:orderInCategory="102"
+          android:orderInCategory="101"
           app:showAsAction="never"/>
       <item android:id="@+id/action_user_rating"
           android:title="@string/action_user_rating"
-          android:orderInCategory="101"
+          android:orderInCategory="102"
           app:showAsAction="never"/>
       <item android:id="@+id/action_favourites_popularity"
           android:title="@string/action_favourites_popularity"
