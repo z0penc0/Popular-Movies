@@ -1,5 +1,6 @@
 package ar.com.mobiledieguinho.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -33,22 +34,19 @@ import ar.com.mobiledieguinho.popularmovies.task.FetchMovieTask;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MovieListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MovieListActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener{
     private final static String TAG = MovieListActivityFragment.class.getSimpleName();
     private MoviesAdapter adapter;
     private GridView moviesListView;
     private ArrayList<Movie> movies = new ArrayList<Movie>();
-    private String lastSortOrder;
     private int mCurrentPosition;
     private String SELECTED_ITEM = "position";
     private static final int MOVIE_LOADER = 0;
-
-    private final String SORT_BY_POPULARITY = "popularity.desc";
-    private final String SORT_BY_USER_RATING= "vote_average.desc";
+    private SharedPreferences sharedPref;
 
     private String selection;
     private String[] selectionArgs;
-    private String sortBy = SORT_BY_POPULARITY;
+    private String sortBy;
 
     public static final String[] ALL_CALOUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -115,24 +113,16 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        sharedPref = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        sortBy = sharedPref.getString(getActivity().getString(R.string.pref_sort_key), getActivity().getString(R.string.pref_sort_value));
+        boolean favouriteSelected = sharedPref.getBoolean(getActivity().getString(R.string.pref_favorite_key), false);
+        setFavouriteSelection(favouriteSelected);
+
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
         FetchMovieTask movieTask = new FetchMovieTask(getActivity());
         movieTask.execute();
-    }
-
-    @Override
-    public void onResume() {
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String sortBy = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_value));
-
-        // Fetch movies only if sort criteria has changed
-//        if(lastSortOrder!= null && !sortBy.equals(lastSortOrder)){
-//            this.movies.clear();
-////            fetchMoviesData();
-//        }
-//        lastSortOrder = sortBy;
-        super.onResume();
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -178,34 +168,52 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
     }
 
     @Override
+    public void onPause() {
+        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         inflater.inflate(R.menu.menu_movie_list_fragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        final String SORT_BY_POPULARITY = getString(R.string.pref_sort_value_popularity);
+        final String SORT_BY_USER_RATING = getString(R.string.pref_sort_value_rating);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         int id = item.getItemId();
 
+        boolean favorite = false;
         switch(id){
             case R.id.action_user_rating:
-                setFavouriteSelection(false);
+                favorite = false;
                 sortBy = SORT_BY_USER_RATING;
                 break;
             case R.id.action_popularity:
-                setFavouriteSelection(false);
+                favorite = false;
                 sortBy = SORT_BY_POPULARITY;
                 break;
             case R.id.action_favourites_popularity:
-                setFavouriteSelection(true);
+                favorite = true;
                 sortBy = SORT_BY_POPULARITY;
                 break;
             case R.id.action_favourites_user_rating:
-                setFavouriteSelection(true);
+                favorite = true;
                 sortBy = SORT_BY_USER_RATING;
                 break;
             default:
                 Log.d(TAG, "Option not available, menu action: " + id);
         }
+        setFavouriteSelection(favorite);
+        editor.putBoolean(getActivity().getString(R.string.pref_favorite_key), favorite);
+        editor.putString(getActivity().getString(R.string.pref_sort_key), sortBy);
+        editor.commit();
+        Log.d(TAG, "Preferences SortBy: " + sortBy);
+        Log.d(TAG, "Preferences favorite: " + favorite);
+
         getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
         return super.onOptionsItemSelected(item);
     }
@@ -222,9 +230,6 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String sortBy = preferences.getString(getActivity().getString(R.string.pref_sort_key), getActivity().getString(R.string.pref_sort_value));
-
         Uri moviesUri = MovieContract.MovieEntry.CONTENT_URI;
         return new CursorLoader(getActivity(),
                 moviesUri,
@@ -245,5 +250,11 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
+        movieTask.execute();
     }
 }

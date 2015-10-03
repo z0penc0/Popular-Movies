@@ -5,9 +5,11 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.SyncStateContract;
 import android.util.Log;
 
 
@@ -385,9 +387,16 @@ public class MovieProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_REPLACE);
-                        if (_id != -1) {
-                            returnCount++;
+                        try {
+                            long id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_ABORT);
+                            if (id != -1) {
+                                returnCount++;
+                            }
+                        }catch(SQLiteConstraintException sqlce){
+                            long id = (Long)value.get(MovieContract.MovieEntry._ID);
+                            value.remove(MovieContract.MovieEntry._ID);
+                            value.remove(MovieContract.MovieEntry.COLUMN_FAVOURITE);
+                            db.update(MovieContract.MovieEntry.TABLE_NAME, value, "_id = ?", new String[]{String.valueOf(id)});
                         }
                     }
                     db.setTransactionSuccessful();

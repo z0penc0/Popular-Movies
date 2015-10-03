@@ -7,12 +7,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.List;
 import java.util.Vector;
 
+import ar.com.mobiledieguinho.popularmovies.Constants;
+import ar.com.mobiledieguinho.popularmovies.MovieListActivity;
 import ar.com.mobiledieguinho.popularmovies.R;
 import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
@@ -23,7 +24,7 @@ import ar.com.mobiledieguinho.popularmovies.ws.WebService;
  */
 public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
 
-    private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+    private final String TAG = FetchMovieTask.class.getSimpleName();
 
     private final Context mContext;
 
@@ -56,60 +57,38 @@ public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
             int columnIndex = cursor.getColumnIndex(MovieContract.MovieEntry._ID);
             return cursor.getLong(columnIndex);
         }
-        ContentValues values = new ContentValues();
-        values = movie.getAsContentValues();
+        ContentValues values = movie.getAsContentValues();
         return ContentUris.parseId(contentResolver.insert(MovieContract.MovieEntry.CONTENT_URI, values));
     }
 
     @Override
     protected Void doInBackground(Void...params) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String sortBy = preferences.getString(mContext.getString(R.string.pref_sort_key), mContext.getString(R.string.pref_sort_value));
+        SharedPreferences sharedPref = mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        String sortBy = sharedPref.getString(mContext.getString(R.string.pref_sort_key), mContext.getString(R.string.pref_sort_value));
+        boolean favouriteSelected = sharedPref.getBoolean(mContext.getString(R.string.pref_favorite_key), false);
+        Log.d(TAG, "Preferences SortBy: " + sortBy);
+        Log.d(TAG, "Preferences favorite: " + favouriteSelected);
 
-        WebService webService = new WebService();
-        List<Movie> movies = webService.getMovies(sortBy);
+        if(!favouriteSelected) {
+            WebService webService = new WebService();
+            List<Movie> movies = webService.getMovies(sortBy);
 
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(movies.size());
-        for(int i = 0; i < movies.size(); i++){
-            Movie movie = movies.get(i);
-            ContentValues values = new ContentValues();
-            values.put(MovieContract.MovieEntry._ID, movie.getId());
-            values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
-            values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, movie.getOriginalTitle());
-            values.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, movie.getBackdropPath());
-            values.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
-            values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, movie.getSynopsis());
-            values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
-            values.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE, movie.getOriginalLanguage());
-            values.put(MovieContract.MovieEntry.COLUMN_ADULT, movie.isAdult());
-            values.put(MovieContract.MovieEntry.COLUMN_BUDGET, movie.getBudget());
-            values.put(MovieContract.MovieEntry.COLUMN_HOMEPAGE, movie.getHomepage());
-            values.put(MovieContract.MovieEntry.COLUMN_ID_IMDB, movie.getIdImdb());
-            values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, movie.getPopularity());
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COMPANY, );
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COUNTRY, );
-            values.put(MovieContract.MovieEntry.COLUMN_REVENUE, movie.getRevenue());
-            values.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movie.getRuntime());
-//        values.put(MovieContract.MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE, movie.get);
-            values.put(MovieContract.MovieEntry.COLUMN_STATUS, movie.getStatus());
-            values.put(MovieContract.MovieEntry.COLUMN_TAGLINE, movie.getTagLine());
-            values.put(MovieContract.MovieEntry.COLUMN_VIDEO, movie.isVideo());
-            values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movie.getUserRating());
-            values.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
-            values.put(MovieContract.MovieEntry.COLUMN_FAVOURITE, false);
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(movies.size());
+            for (int i = 0; i < movies.size(); i++) {
+                Movie movie = movies.get(i);
+                ContentValues values = movie.getAsContentValues();
+                cVVector.add(values);
+            }
 
-            cVVector.add(values);
+            // add to database
+            int inserted = 0;
+            if (cVVector.size() > 0) {
+                ContentValues[] contentValues = new ContentValues[cVVector.size()];
+                cVVector.toArray(contentValues);
+                inserted = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+            }
+            Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
         }
-
-        // add to database
-        int inserted = 0;
-        if ( cVVector.size() > 0 ) {
-            ContentValues[] contentValues = new ContentValues[cVVector.size()];
-            cVVector.toArray(contentValues);
-            inserted = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-        }
-        Log.d(LOG_TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
-
         return null;
     }
 
