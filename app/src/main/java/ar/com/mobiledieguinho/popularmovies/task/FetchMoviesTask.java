@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Vector;
 
 import ar.com.mobiledieguinho.popularmovies.Constants;
-import ar.com.mobiledieguinho.popularmovies.MovieListActivity;
 import ar.com.mobiledieguinho.popularmovies.R;
 import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
@@ -22,13 +21,13 @@ import ar.com.mobiledieguinho.popularmovies.ws.WebService;
 /**
  * Created by Dieguinho on 29/09/2015.
  */
-public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
+public class FetchMoviesTask extends AsyncTask<Void, Void, Void> {
 
-    private final String TAG = FetchMovieTask.class.getSimpleName();
+    private final String TAG = FetchMoviesTask.class.getSimpleName();
 
     private final Context mContext;
 
-    public FetchMovieTask(Context context) {
+    public FetchMoviesTask(Context context) {
         mContext = context;
     }
 
@@ -57,7 +56,7 @@ public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
             int columnIndex = cursor.getColumnIndex(MovieContract.MovieEntry._ID);
             return cursor.getLong(columnIndex);
         }
-        ContentValues values = movie.getAsContentValues();
+        ContentValues values = movie.asContentValues();
         return ContentUris.parseId(contentResolver.insert(MovieContract.MovieEntry.CONTENT_URI, values));
     }
 
@@ -76,7 +75,7 @@ public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
             Vector<ContentValues> cVVector = new Vector<ContentValues>(movies.size());
             for (int i = 0; i < movies.size(); i++) {
                 Movie movie = movies.get(i);
-                ContentValues values = movie.getAsContentValues();
+                ContentValues values = movie.asContentValues();
                 cVVector.add(values);
             }
 
@@ -87,7 +86,7 @@ public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
                 cVVector.toArray(contentValues);
                 inserted = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
             }
-            Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
+            Log.d(TAG, "FetchMoviesTask Complete. " + inserted + " Inserted");
         }
         return null;
     }

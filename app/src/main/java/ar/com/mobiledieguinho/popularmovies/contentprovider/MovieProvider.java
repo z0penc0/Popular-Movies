@@ -1,6 +1,5 @@
 package ar.com.mobiledieguinho.popularmovies.contentprovider;
 
-import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -9,7 +8,6 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.provider.SyncStateContract;
 import android.util.Log;
 
 
@@ -24,16 +22,17 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE = 100;
     static final int MOVIE_ID = 101;
     static final int TRAILER = 200;
-    static final int TRAILER_ID = 201;
+    static final int TRAILERS_BY_MOVIE = 201;
+    static final int TRAILER_ID = 202;
     static final int REVIEW = 300;
-    static final int REVIEW_ID = 301;
+    static final int REVIEWS_BY_MOVIE = 301;
+    static final int REVIEW_ID = 302;
     static final int PRODUCTION_COMPANY = 401;
     static final int PRODUCTION_COUNTRY = 501;
     static final int SPOKEN_LANGUAGE = 601;
 
 
     private static final SQLiteQueryBuilder sMovieQueryBuilder;
-
     static{
         sMovieQueryBuilder = new SQLiteQueryBuilder();
 
@@ -55,19 +54,20 @@ public class MovieProvider extends ContentProvider {
                         " ON " + MovieContract.MovieEntry.TABLE_NAME +
                         "." + MovieContract.MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE +
                         " = " + MovieContract.SpokenLanguageEntry.TABLE_NAME +
-                        "." + MovieContract.SpokenLanguageEntry.COLUMN_ISO_639_1 +
-
-                        " LEFT OUTER JOIN " + MovieContract.TrailerEntry.TABLE_NAME +
-                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
-                        "." + MovieContract.MovieEntry.COLUMN_ID_TRAILER +
-                        " = " + MovieContract.TrailerEntry.TABLE_NAME +
-                        "." + MovieContract.TrailerEntry.COLUMN_SOURCE +
-
-                        " LEFT OUTER JOIN " + MovieContract.ReviewEntry.TABLE_NAME +
-                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
-                        "." + MovieContract.MovieEntry.COLUMN_ID_REVIEW +
-                        " = " + MovieContract.ReviewEntry.TABLE_NAME +
-                        "." + MovieContract.ReviewEntry._ID
+                        "." + MovieContract.SpokenLanguageEntry.COLUMN_ISO_639_1
+//                        +
+//
+//                        " LEFT OUTER JOIN " + MovieContract.TrailerEntry.TABLE_NAME +
+//                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+//                        "." + MovieContract.MovieEntry._ID +
+//                        " = " + MovieContract.TrailerEntry.TABLE_NAME +
+//                        "." + MovieContract.TrailerEntry.COLUMN_MOVIE_ID +
+//
+//                        " LEFT OUTER JOIN " + MovieContract.ReviewEntry.TABLE_NAME +
+//                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+//                        "." + MovieContract.MovieEntry._ID +
+//                        " = " + MovieContract.ReviewEntry.TABLE_NAME +
+//                        "." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID
         );
     }
 
@@ -75,15 +75,25 @@ public class MovieProvider extends ContentProvider {
             MovieContract.MovieEntry.TABLE_NAME +
                     "." + MovieContract.MovieEntry._ID + " = ? ";
 
+    private static final String sTrailersByMovieIdSelection =
+            MovieContract.TrailerEntry.TABLE_NAME +
+                    "." + MovieContract.TrailerEntry.COLUMN_MOVIE_ID + " = ? ";
+
+    private static final String sReviewsByMovieIdSelection =
+            MovieContract.ReviewEntry.TABLE_NAME +
+                    "." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " = ? ";
+
     private static final String[] sTrailersProjection = {
-            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_NAME    + "," +
-            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_SOURCE  + "," +
-            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_TYPE    + "," +
+            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_MOVIE_ID    + "," +
+            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_NAME        + "," +
+            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_SOURCE      + "," +
+            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_TYPE        + "," +
             MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_SIZE
     };
 
     private static final String[] sReviewsProjection = {
-            MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID        + "," +
+            MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID  + "," +
+            MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry._ID              + "," +
             MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COLUMN_URL       + "," +
             MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COLUMN_CONTENT   + "," +
             MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COLUMN_AUTHOR
@@ -95,8 +105,10 @@ public class MovieProvider extends ContentProvider {
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_MOVIE, MOVIE);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_MOVIE + "/#", MOVIE_ID);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_TRAILER, TRAILER);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_TRAILER + "/*", TRAILERS_BY_MOVIE);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_TRAILER + "/#", TRAILER_ID);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_REVIEW, REVIEW);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_REVIEW + "/*", REVIEWS_BY_MOVIE);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_REVIEW + "/#", REVIEW_ID);
 
         return uriMatcher;
@@ -119,9 +131,13 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case TRAILER:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
+            case TRAILERS_BY_MOVIE:
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
             case TRAILER_ID:
                 return MovieContract.TrailerEntry.CONTENT_ITEM_TYPE;
             case REVIEW:
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
+            case REVIEWS_BY_MOVIE:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
             case REVIEW_ID:
                 return MovieContract.TrailerEntry.CONTENT_ITEM_TYPE;
@@ -144,11 +160,11 @@ public class MovieProvider extends ContentProvider {
     }
 
     private Cursor getTrailersByMovieId(Uri uri, String sortOrder) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        long movieId = MovieContract.getMovieIdFromUri(uri);
 
-        return sMovieQueryBuilder.query(mMovieDbHelper.getReadableDatabase(),
+        return mMovieDbHelper.getReadableDatabase().query(MovieContract.TrailerEntry.TABLE_NAME,
                 sTrailersProjection,
-                sMovieSelectionById,
+                sTrailersByMovieIdSelection,
                 new String[]{Long.toString(movieId)},
                 null,
                 null,
@@ -170,11 +186,11 @@ public class MovieProvider extends ContentProvider {
     }
 
     private Cursor getReviewsByMovieId(Uri uri, String sortOrder) {
-        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        long movieId = MovieContract.getMovieIdFromUri(uri);
 
-        return sMovieQueryBuilder.query(mMovieDbHelper.getReadableDatabase(),
+        return mMovieDbHelper.getReadableDatabase().query(MovieContract.ReviewEntry.TABLE_NAME,
                 sReviewsProjection,
-                sMovieSelectionById,
+                sReviewsByMovieIdSelection,
                 new String[]{Long.toString(movieId)},
                 null,
                 null,
@@ -205,7 +221,7 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
 
-            case TRAILER: {
+            case TRAILERS_BY_MOVIE: {
                 retCursor = getTrailersByMovieId(uri, sortOrder);
                 break;
             }
@@ -216,6 +232,11 @@ public class MovieProvider extends ContentProvider {
             }
 
             case REVIEW: {
+                retCursor = getReviewsByMovieId(uri, sortOrder);
+                break;
+            }
+
+            case REVIEWS_BY_MOVIE: {
                 retCursor = getReviewsByMovieId(uri, sortOrder);
                 break;
             }
@@ -248,6 +269,14 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             case TRAILER: {
+                long _id = db.insertWithOnConflict(MovieContract.TrailerEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                if(_id > 0)
+                    returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case TRAILERS_BY_MOVIE: {
                 long _id = db.insertWithOnConflict(MovieContract.TrailerEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if(_id > 0)
                     returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
@@ -307,7 +336,7 @@ public class MovieProvider extends ContentProvider {
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
-            case TRAILER: {
+            case TRAILERS_BY_MOVIE: {
                 deletedRows = db.delete(MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
@@ -348,7 +377,7 @@ public class MovieProvider extends ContentProvider {
                 updatedRows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             }
-            case TRAILER: {
+            case TRAILERS_BY_MOVIE: {
                 updatedRows = db.update(MovieContract.TrailerEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             }

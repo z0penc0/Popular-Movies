@@ -329,7 +329,7 @@ public class Movie implements Parcelable {
         this.favourite = favourite;
     }
 
-    public ContentValues getAsContentValues(){
+    public ContentValues asContentValues(){
         ContentValues values = new ContentValues();
         values.put(MovieContract.MovieEntry._ID, getId());
         values.put(MovieContract.MovieEntry.COLUMN_TITLE, getTitle());

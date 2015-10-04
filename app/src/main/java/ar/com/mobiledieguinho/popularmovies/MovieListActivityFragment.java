@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -23,12 +22,11 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ar.com.mobiledieguinho.popularmovies.adapter.MoviesAdapter;
 import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
-import ar.com.mobiledieguinho.popularmovies.task.FetchMovieTask;
+import ar.com.mobiledieguinho.popularmovies.task.FetchMoviesTask;
 
 
 /**
@@ -47,33 +45,6 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
     private String selection;
     private String[] selectionArgs;
     private String sortBy;
-
-    public static final String[] ALL_CALOUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
-            MovieContract.MovieEntry.COLUMN_TITLE,
-            MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE,
-            MovieContract.MovieEntry.COLUMN_BACKDROP_PATH,
-            MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-            MovieContract.MovieEntry.COLUMN_SYNOPSIS,
-            MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE,
-            MovieContract.MovieEntry.COLUMN_ADULT,
-            MovieContract.MovieEntry.COLUMN_BUDGET,
-            MovieContract.MovieEntry.COLUMN_HOMEPAGE,
-            MovieContract.MovieEntry.COLUMN_ID_IMDB,
-            MovieContract.MovieEntry.COLUMN_POPULARITY,
-            MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COMPANY,
-            MovieContract.MovieEntry.COLUMN_ID_PRODUCTION_COUNTRY,
-            MovieContract.MovieEntry.COLUMN_REVENUE,
-            MovieContract.MovieEntry.COLUMN_RUNTIME,
-            MovieContract.MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE,
-            MovieContract.MovieEntry.COLUMN_STATUS,
-            MovieContract.MovieEntry.COLUMN_TAGLINE,
-            MovieContract.MovieEntry.COLUMN_VIDEO,
-            MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieContract.MovieEntry.COLUMN_VOTE_COUNT,
-            MovieContract.MovieEntry.COLUMN_FAVOURITE
-    };
 
     public static final int COLUMN_ID = 0;
     public static final int COLUMN_TITLE = 1;
@@ -119,7 +90,7 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
         setFavouriteSelection(favouriteSelected);
 
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
-        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
+        FetchMoviesTask movieTask = new FetchMoviesTask(getActivity());
         movieTask.execute();
         super.onActivityCreated(savedInstanceState);
     }
@@ -238,7 +209,7 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
         Uri moviesUri = MovieContract.MovieEntry.CONTENT_URI;
         return new CursorLoader(getActivity(),
                 moviesUri,
-                ALL_CALOUMNS,
+                MovieContract.MovieEntry.ALL_COLUMNS,
                 selection,
                 selectionArgs,
                 sortBy.replace(".", " "));
@@ -259,7 +230,7 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
+        FetchMoviesTask movieTask = new FetchMoviesTask(getActivity());
         movieTask.execute();
     }
 }

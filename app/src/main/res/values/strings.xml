@@ -19,6 +19,8 @@
     <string name="textView_label_user_rating">Rating:&#160;</string>
     <string name="textView_favorite">MARK AS FAVORITE</string>
     <string name="textView_favorited">IN YOUR FAVORITES</string>
+    <string name="title_trailers">TRAILERS</string>
+    <string name="title_reviews">REVIEWS</string>
 
     <!-- Menu -->
     <string name="action_user_rating">Sort by User Rating</string>

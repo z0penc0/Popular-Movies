@@ -1,9 +1,12 @@
 package ar.com.mobiledieguinho.popularmovies.entity;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
+
+import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 
 /**
  * Created by Dieguinho on 19/07/2015.
@@ -58,6 +61,15 @@ public class Review implements Parcelable{
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public ContentValues asContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.ReviewEntry._ID, id);
+        values.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, author);
+        values.put(MovieContract.ReviewEntry.COLUMN_CONTENT, content);
+        values.put(MovieContract.ReviewEntry.COLUMN_URL, url);
+        return values;
     }
 
     @Override

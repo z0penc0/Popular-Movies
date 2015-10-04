@@ -54,8 +54,33 @@ public class MovieContract {
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_VOTE_COUNT = "vote_count";
         public static final String COLUMN_FAVOURITE = "favourite";
-        public static final String COLUMN_ID_TRAILER = "id_trailer";
-        public static final String COLUMN_ID_REVIEW = "id_review";
+
+        public static final String[] ALL_COLUMNS = {
+                TABLE_NAME + "." + _ID,
+                COLUMN_TITLE,
+                COLUMN_ORIGINAL_TITLE,
+                COLUMN_BACKDROP_PATH,
+                COLUMN_POSTER_PATH,
+                COLUMN_SYNOPSIS,
+                COLUMN_RELEASE_DATE,
+                COLUMN_ORIGINAL_LANGUAGE,
+                COLUMN_ADULT,
+                COLUMN_BUDGET,
+                COLUMN_HOMEPAGE,
+                COLUMN_ID_IMDB,
+                COLUMN_POPULARITY,
+                COLUMN_ID_PRODUCTION_COMPANY,
+                COLUMN_ID_PRODUCTION_COUNTRY,
+                COLUMN_REVENUE,
+                COLUMN_RUNTIME,
+                COLUMN_ID_SPOKEN_LANGUAGE,
+                COLUMN_STATUS,
+                COLUMN_TAGLINE,
+                COLUMN_VIDEO,
+                COLUMN_VOTE_AVERAGE,
+                COLUMN_VOTE_COUNT,
+                COLUMN_FAVOURITE
+        };
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
 
@@ -125,10 +150,26 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "trailer";
 
+        public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_SOURCE = "source";
         public static final String COLUMN_TYPE = "type";
+
+        public static final int COLUMN_INDEX_MOVIE_ID = 0;
+        public static final int COLUMN_INDEX_NAME = 1;
+        public static final int COLUMN_INDEX_SIZE = 4;
+        public static final int COLUMN_INDEX_SOURCE = 2;
+        public static final int COLUMN_INDEX_TYPE = 3;
+
+
+        public static final String[] ALL_COLUMNS = {
+            COLUMN_MOVIE_ID,
+            COLUMN_NAME,
+            COLUMN_SIZE,
+            COLUMN_SOURCE,
+            COLUMN_TYPE,
+        };
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
 
@@ -148,9 +189,25 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "review";
 
+//        public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_URL = "url";
+
+        public static final int COLUMN_INDEX_ID = 1;
+        public static final int COLUMN_INDEX_URL = 2;
+        public static final int COLUMN_INDEX_AUTHOR = 4;
+        public static final int COLUMN_INDEX_CONTENT = 3;
+//        public static final int COLUMN_INDEX_MOVIE_ID = ;
+
+        public static final String[] ALL_COLUMNS = {
+            _ID,
+            COLUMN_MOVIE_ID,
+            COLUMN_AUTHOR,
+            COLUMN_CONTENT,
+            COLUMN_URL
+        };
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
 
@@ -160,6 +217,15 @@ public class MovieContract {
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+    }
+
+    public static long getMovieIdFromUri(Uri uri) {
+        String movieIdString = uri.getQueryParameter(TrailerEntry.COLUMN_MOVIE_ID);
+        if (null != movieIdString && movieIdString.length() > 0)
+            return Long.parseLong(movieIdString);
+        else
+            return 0;
     }
 
 }

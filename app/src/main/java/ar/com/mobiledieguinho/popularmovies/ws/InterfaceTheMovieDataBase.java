@@ -4,8 +4,10 @@ import java.util.List;
 
 import ar.com.mobiledieguinho.popularmovies.entity.Movie;
 import ar.com.mobiledieguinho.popularmovies.entity.Review;
+import ar.com.mobiledieguinho.popularmovies.entity.ReviewsData;
 import ar.com.mobiledieguinho.popularmovies.entity.Trailer;
 import ar.com.mobiledieguinho.popularmovies.entity.ResponsePage;
+import ar.com.mobiledieguinho.popularmovies.entity.TrailersData;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -20,9 +22,9 @@ public interface InterfaceTheMovieDataBase {
     @GET("/movie/{id}")
     Movie getMovie(@Path("id") long id, @Query("api_key") String key);
 
-    @GET("/movie/{id}/videos")
-    List<Trailer> getMovieTrailers(@Path("id") long id, @Query("api_key") String key);
+    @GET("/movie/{id}/trailers")
+    TrailersData getMovieTrailers(@Path("id") long id, @Query("api_key") String key);
 
     @GET("/movie/{id}/reviews")
-    List<Review> getMovieReviews(@Path("id") long id, @Query("api_key") String key);
+    ReviewsData getMovieReviews(@Path("id") long id, @Query("api_key") String key);
 }

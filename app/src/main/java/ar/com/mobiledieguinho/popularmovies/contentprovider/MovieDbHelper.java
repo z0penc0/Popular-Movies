@@ -52,8 +52,6 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 MovieEntry.COLUMN_VOTE_AVERAGE + " DOUBLE, " +
                 MovieEntry.COLUMN_VOTE_COUNT + " LONG, " +
                 MovieEntry.COLUMN_FAVOURITE + " INTEGER, " +
-                MovieEntry.COLUMN_ID_TRAILER + " LONG, " +
-                MovieEntry.COLUMN_ID_REVIEW + " LONG, "
 
 //                MovieEntry.COLUMN_ID + " INTEGER NOT NULL, " +
 //                MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
@@ -81,8 +79,6 @@ public class MovieDbHelper extends SQLiteOpenHelper{
 //                MovieEntry.COLUMN_FAVOURITE + " INTEGER NOT NULL, " +
 //                MovieEntry.COLUMN_ID_TRAILER + " LONG NOT NULL, " +
 //                MovieEntry.COLUMN_ID_REVIEW + " LONG NOT NULL); ";
-                +
-
 
                 " FOREIGN KEY (" + MovieEntry.COLUMN_ID_PRODUCTION_COMPANY + ") REFERENCES " +
                 ProductionCompanyEntry.TABLE_NAME + " (" + ProductionCompanyEntry._ID + "), " +
@@ -93,23 +89,15 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 " FOREIGN KEY (" + MovieEntry.COLUMN_ID_SPOKEN_LANGUAGE + ") REFERENCES " +
                 SpokenLanguageEntry.TABLE_NAME + " (" + SpokenLanguageEntry.COLUMN_ISO_639_1 + "), " +
 
-                " FOREIGN KEY (" + MovieEntry.COLUMN_ID_TRAILER + ") REFERENCES " +
-                TrailerEntry.TABLE_NAME + " (" + TrailerEntry.COLUMN_SOURCE + "), " +
-
-                " FOREIGN KEY (" + MovieEntry.COLUMN_ID_REVIEW + ") REFERENCES " +
-                ReviewEntry.TABLE_NAME + " (" + ReviewEntry._ID + ")," +
-
                 "UNIQUE (" + MovieEntry._ID + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
-
 
         final String SQL_CREATE_PRODUCTION_COMPANY_TABLE = "CREATE TABLE " + ProductionCompanyEntry.TABLE_NAME + " (" +
                 ProductionCompanyEntry._ID + " INTEGER PRIMARY KEY NOT NULL, " +
                 ProductionCompanyEntry.COLUMN_NAME+ " TEXT NOT NULL, " +
                 " UNIQUE (" + ProductionCompanyEntry._ID + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_PRODUCTION_COMPANY_TABLE);
-
 
         final String SQL_CREATE_PRODUCTION_COUNTRY_TABLE = "CREATE TABLE " + ProductionCountryEntry.TABLE_NAME + " (" +
                 ProductionCountryEntry._ID + " INTEGER PRIMARY KEY NOT NULL, " +
@@ -126,18 +114,24 @@ public class MovieDbHelper extends SQLiteOpenHelper{
 
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 TrailerEntry.COLUMN_SOURCE + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_SIZE + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
+                " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry._ID+ "), " +
                 " UNIQUE (" + TrailerEntry.COLUMN_SOURCE + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_TRAILER_TABLE);
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
-                ReviewEntry._ID + " INTEGER PRIMARY KEY NOT NULL, " +
+                ReviewEntry._ID + " TEXT PRIMARY KEY NOT NULL, " +
+                ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                 ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
                 ReviewEntry.COLUMN_URL + " TEXT NOT NULL, " +
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ")," +
                 " UNIQUE (" + ReviewEntry._ID + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_REVIEW_TABLE);
     }

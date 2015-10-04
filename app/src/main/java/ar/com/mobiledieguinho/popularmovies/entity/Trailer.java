@@ -1,9 +1,12 @@
 package ar.com.mobiledieguinho.popularmovies.entity;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
+
+import ar.com.mobiledieguinho.popularmovies.contentprovider.MovieContract;
 
 /**
  * Created by Dieguinho on 19/07/2015.
@@ -58,6 +61,15 @@ public class Trailer implements Parcelable{
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public ContentValues asContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.TrailerEntry.COLUMN_NAME, name);
+        values.put(MovieContract.TrailerEntry.COLUMN_SOURCE, source);
+        values.put(MovieContract.TrailerEntry.COLUMN_SIZE, size);
+        values.put(MovieContract.TrailerEntry.COLUMN_TYPE, type);
+        return values;
     }
 
     @Override
