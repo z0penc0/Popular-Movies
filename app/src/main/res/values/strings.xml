@@ -22,6 +22,9 @@
     <string name="title_trailers">TRAILERS</string>
     <string name="title_reviews">REVIEWS</string>
 
+    <string name="textView_no_trailers_found">No trailers found</string>
+    <string name="textView_no_reviews_found">No reviews found</string>
+
     <!-- Menu -->
     <string name="action_user_rating">Sort by User Rating</string>
     <string name="action_popularity">Sort by Popularity</string>
