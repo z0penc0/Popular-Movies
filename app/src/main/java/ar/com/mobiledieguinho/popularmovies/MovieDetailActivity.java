@@ -13,17 +13,17 @@ public class MovieDetailActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-//        if (savedInstanceState == null) {
-//            Bundle arguments = new Bundle();
-//            arguments.putParcelable(MovieDetailActivityFragment.MOVIE_DETAIL_ID, getIntent().getData());
-//
-//            MovieDetailActivityFragment fragment = new MovieDetailActivityFragment();
-//            fragment.setArguments(arguments);
-//
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.fragment_movie_detail, fragment)
-//                    .commit();
-//        }
+        if (savedInstanceState == null) {
+            Bundle arguments = new Bundle();
+            arguments.putInt(MovieDetailActivityFragment.MOVIE_DETAIL_ID, getIntent().getIntExtra(MovieDetailActivityFragment.MOVIE_DETAIL_ID, 1));
+
+            MovieDetailActivityFragment fragment = new MovieDetailActivityFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_movie_detail_container, fragment)
+                    .commit();
+        }
     }
 
 

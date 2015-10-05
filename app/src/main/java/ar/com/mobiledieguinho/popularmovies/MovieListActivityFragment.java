@@ -73,6 +73,10 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
     public static final int COLUMN_ID_TRAILER = 24;
     public static final int COLUMN_ID_REVIEW = 25;
 
+    public interface Callback {
+        public void onItemSelected(int selectedMovieId);
+    }
+
     public MovieListActivityFragment() {
     }
 
@@ -120,17 +124,16 @@ public class MovieListActivityFragment extends Fragment implements LoaderManager
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mCurrentPosition = position;
-//                Movie selectedMovie = (Movie) adapter.getItem(position);
                 Cursor cursor = adapter.getCursor();
                 if (cursor.moveToPosition(position)) {
                     int selectedMovieId = cursor.getInt(COLUMN_ID);
-                    Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class);
-
-                    Bundle bundle = new Bundle();
-                    bundle.putLong("selectedMovieId", selectedMovieId);
-//                    bundle.putParcelable("selectedMovie", selectedMovie);
-                    detailIntent.putExtras(bundle);
-                    startActivity(detailIntent);
+                    ((Callback)getActivity()).onItemSelected(selectedMovieId);
+//                    Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class);
+//
+//                    Bundle bundle = new Bundle();
+//                    bundle.putLong("selectedMovieId", selectedMovieId);
+//                    detailIntent.putExtras(bundle);
+//                    startActivity(detailIntent);
                 }
             }
         });

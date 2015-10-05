@@ -11,9 +11,15 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.internal.view.menu.MenuItemImpl;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -56,6 +62,8 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
 
     private View root;
     private long selectedMovieId;
+    private ShareActionProvider mShareActionProvider;
+    private Uri shareTrailerUri;
 
     public MovieDetailActivityFragment() {
     }
@@ -63,16 +71,17 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         selectedMovieId = getActivity().getIntent().getLongExtra("selectedMovieId", 0);
-        FetchTrailersTask fetchTrailersTask = new FetchTrailersTask(getActivity());
-        FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
-        fetchTrailersTask.execute(selectedMovieId);
-        fetchReviewsTask.execute(selectedMovieId);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        FetchTrailersTask fetchTrailersTask = new FetchTrailersTask(getActivity());
+        FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
+        fetchTrailersTask.execute(selectedMovieId);
+        fetchReviewsTask.execute(selectedMovieId);
 //        fetchMovieData();
     }
 
@@ -80,7 +89,7 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle arguments = getArguments();
         if (arguments != null) {
-            selectedMovieId = arguments.getParcelable(MovieDetailActivityFragment.MOVIE_DETAIL_ID);
+            selectedMovieId = arguments.getInt(MovieDetailActivityFragment.MOVIE_DETAIL_ID);
         }
 
         root = inflater.inflate(R.layout.fragment_movie_detail, container, false);
@@ -105,6 +114,26 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
         getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
         getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, savedInstanceState, this);
         getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, savedInstanceState, this);
+    }
+
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        getActivity().getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
+//        MenuItem item = menu.findItem(R.id.menu_item_share);
+//
+//        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+//        if (shareTrailerUri != null) {
+//            mShareActionProvider.setShareIntent(createShareTrailerIntent());
+//        }
+//    }
+
+    private Intent createShareTrailerIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.setData(shareTrailerUri);
+        return shareIntent;
     }
 
     @Override
@@ -198,7 +227,7 @@ public class MovieDetailActivityFragment extends Fragment implements LoaderManag
                 for(int i = 0; i < data.getCount(); i++){
                     String source = data.getString(MovieContract.TrailerEntry.COLUMN_INDEX_SOURCE);
                     final Uri trailerUri = Uri.parse("http://www.youtube.com/watch?v=" + source);
-
+                    if(i == 0) shareTrailerUri = trailerUri;
                     trailerView = inflater.inflate(R.layout.item_trailer, null);
                     ImageView imageViewTrailerIcon = (ImageView)trailerView.findViewById(R.id.imageView_trailer_icon);
                     TextView textViewTrailerTitle = (TextView)trailerView.findViewById(R.id.textView_title);
